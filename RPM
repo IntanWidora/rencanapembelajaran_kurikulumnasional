@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPM (Rencana Pembelajaran Mendalam)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --accent: #e8a020;
+    --light: #f5f7fa;
+    --border: #d1d9e6;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f4f8; color: #1a1a2e; }
+  .form-input {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    background: white; transition: border-color .2s, box-shadow .2s;
+    color: #1a1a2e;
+  }
+  .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,58,92,.1); }
+  .form-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+  .section-card {
+    background: white; border-radius: 14px; border: 1.5px solid var(--border);
+    padding: 24px; margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 15px; font-weight: 700; color: var(--primary);
+    border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .checkbox-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
+    transition: all .15s; font-size: 13px;
+  }
+  .checkbox-item:hover { border-color: var(--primary); background: #f0f4f8; }
+  .checkbox-item input[type=checkbox]:checked + span { color: var(--primary); font-weight: 600; }
+  .checkbox-item input[type=checkbox] { accent-color: var(--primary); width: 15px; height: 15px; }
+  .btn-primary {
+    background: var(--primary); color: white; border: none;
+    padding: 13px 28px; border-radius: 10px; font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: all .2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: #0f2540; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,58,92,.3); }
+  .btn-secondary {
+    background: white; color: var(--primary); border: 2px solid var(--primary);
+    padding: 11px 22px; border-radius: 10px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all .2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { background: var(--primary); color: white; }
+  .btn-accent {
+    background: var(--accent); color: white; border: none;
+    padding: 11px 22px; border-radius: 10px; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: all .2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-accent:hover { background: #c8881a; }
+  .error-msg { color: #dc2626; font-size: 12px; margin-top: 4px; display: none; }
+  .error-msg.show { display: block; }
+  .field-error .form-input { border-color: #dc2626; }
+
+  /* RPM Output Styles */
+  #rpm-output { display: none; }
+  .rpm-doc {
+    background: white; max-width: 860px; margin: 0 auto;
+    padding: 40px; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; line-height: 1.7; color: #1a1a2e;
+    border: 1px solid #ccc;
+  }
+  .rpm-header {
+    text-align: center; border-bottom: 3px double var(--primary);
+    padding-bottom: 16px; margin-bottom: 20px;
+  }
+  .rpm-header h1 { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--primary); }
+  .rpm-header h2 { font-size: 13px; font-weight: 600; color: #555; margin-top: 4px; }
+  .rpm-section-heading {
+    background: var(--primary); color: white;
+    padding: 7px 14px; font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 10px;
+  }
+  .rpm-sub-heading {
+    background: #e8f0fa; color: var(--primary);
+    padding: 5px 12px; font-weight: 600; font-size: 12px;
+    border-left: 4px solid var(--primary); margin: 12px 0 8px;
+  }
+  table.rpm-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  table.rpm-table th {
+    background: #1a3a5c; color: white; padding: 7px 10px;
+    font-size: 12px; font-weight: 600; text-align: left; border: 1px solid #aaa;
+  }
+  table.rpm-table td {
+    border: 1px solid #ccc; padding: 7px 10px;
+    vertical-align: top; font-size: 12px; line-height: 1.6;
+  }
+  table.rpm-table tr:nth-child(even) td { background: #fafbfc; }
+  .rpm-footer {
+    margin-top: 30px; border-top: 2px solid var(--primary); padding-top: 16px;
+    display: flex; justify-content: space-between;
+  }
+  .rpm-footer-side { text-align: center; min-width: 200px; }
+  .rpm-footer-side .name { font-weight: 700; margin-top: 40px; border-top: 1.5px solid #555; padding-top: 6px; }
+
+  .loading-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,20,40,.7); z-index: 9999;
+    align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 50px; height: 50px; border: 4px solid rgba(255,255,255,.2);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: white; font-weight: 600; font-size: 15px; }
+  .loading-sub { color: rgba(255,255,255,.6); font-size: 13px; }
+
+  .progress-step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; color: rgba(255,255,255,.5);
+    transition: all .3s;
+  }
+  .progress-step.active { color: white; }
+  .progress-step.done { color: #4ade80; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  @media print {
+    body > *:not(#rpm-output) { display: none !important; }
+    #rpm-output { display: block !important; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="text-align:center">
+    <div class="loading-text" id="loading-text">Memproses data pembelajaran...</div>
+    <div class="loading-sub" id="loading-sub">Mohon tunggu, AI sedang menyusun RPM Anda</div>
+  </div>
+  <div style="margin-top:16px; display:flex; flex-direction:column; gap:4px;">
+    <div class="progress-step" id="step1"><div class="step-dot"></div>Menganalisis Capaian Pembelajaran</div>
+    <div class="progress-step" id="step2"><div class="step-dot"></div>Merancang Tujuan & Kegiatan</div>
+    <div class="progress-step" id="step3"><div class="step-dot"></div>Menyusun Asesmen & Instrumen</div>
+    <div class="progress-step" id="step4"><div class="step-dot"></div>Menghasilkan LKPD & Lampiran</div>
+    <div class="progress-step" id="step5"><div class="step-dot"></div>Memfinalisasi Dokumen RPM</div>
+  </div>
+</div>
+
+<!-- Header -->
+<div style="background: var(--primary); padding: 0;" class="no-print">
+  <div style="max-width:1100px; margin:0 auto; padding:18px 24px; display:flex; align-items:center; justify-content:space-between;">
+    <div>
+      <div style="color:var(--accent); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;">Kurikulum Nasional</div>
+      <div style="color:white; font-size:22px; font-weight:800; margin-top:2px;">RPM (Rencana Pembelajaran Mendalam)</div>
+      <div style="color:rgba(255,255,255,.6); font-size:12px;">By: Intan Widora</div>
+    </div>
+    <div style="text-align:right; color:rgba(255,255,255,.5); font-size:11px; line-height:1.8;">
+      Semua Jenjang & Mata Pelajaran<br>PAUD · SD · SMP · SMA/SMK
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div style="max-width:1100px; margin:0 auto; padding:28px 24px;" class="no-print">
+
+  <form id="rpm-form" novalidate>
+
+    <!-- A. Identitas Dokumen -->
+    <div class="section-card">
+      <div class="section-title">A. Identitas Dokumen</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px;">
+        <div>
+          <label class="form-label">Nama Penyusun / Guru <span style="color:#dc2626">*</span></label>
+          <input type="text" id="nama-guru" class="form-input" placeholder="cth. Drs. Budi Santoso, M.Pd.">
+          <div class="error-msg" id="err-nama-guru">Nama guru wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">NIP Guru</label>
+          <input type="text" id="nip-guru" class="form-input" placeholder="cth. 198501012010011001">
+        </div>
+        <div>
+          <label class="form-label">Nama Sekolah <span style="color:#dc2626">*</span></label>
+          <input type="text" id="nama-sekolah" class="form-input" placeholder="cth. SMP Negeri 1 Bandung">
+          <div class="error-msg" id="err-nama-sekolah">Nama sekolah wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">Nama Kepala Sekolah</label>
+          <input type="text" id="nama-kepsek" class="form-input" placeholder="cth. Dr. Siti Rahayu, M.Pd.">
+        </div>
+        <div>
+          <label class="form-label">NIP Kepala Sekolah</label>
+          <input type="text" id="nip-kepsek" class="form-input" placeholder="cth. 197503152003122002">
+        </div>
+        <div>
+          <label class="form-label">Tahun Pelajaran <span style="color:#dc2626">*</span></label>
+          <input type="text" id="tahun-pelajaran" class="form-input" placeholder="cth. 2025/2026" value="2025/2026">
+          <div class="error-msg" id="err-tahun">Tahun pelajaran wajib diisi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B. Informasi Pembelajaran -->
+    <div class="section-card">
+      <div class="section-title">B. Informasi Pembelajaran</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;">
+        <div>
+          <label class="form-label">Mata Pelajaran <span style="color:#dc2626">*</span></label>
+          <input type="text" id="mapel" class="form-input" placeholder="cth. Matematika, IPA, Bahasa Indonesia">
+          <div class="error-msg" id="err-mapel">Mata pelajaran wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">Fase <span style="color:#dc2626">*</span></label>
+          <select id="fase" class="form-input">
+            <option value="">— Pilih Fase —</option>
+            <option>Fase Fondasi (PAUD/TK)</option>
+            <option>Fase A (Kelas 1–2 SD)</option>
+            <option>Fase B (Kelas 3–4 SD)</option>
+            <option>Fase C (Kelas 5–6 SD)</option>
+            <option>Fase D (Kelas 7–9 SMP)</option>
+            <option>Fase E (Kelas 10 SMA/SMK)</option>
+            <option>Fase F (Kelas 11–12 SMA/SMK)</option>
+          </select>
+          <div class="error-msg" id="err-fase">Fase wajib dipilih</div>
+        </div>
+        <div>
+          <label class="form-label">Kelas <span style="color:#dc2626">*</span></label>
+          <input type="text" id="kelas" class="form-input" placeholder="cth. VII, X, XII">
+          <div class="error-msg" id="err-kelas">Kelas wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">Semester <span style="color:#dc2626">*</span></label>
+          <select id="semester" class="form-input">
+            <option value="">— Pilih —</option>
+            <option value="1">Semester 1 (Ganjil)</option>
+            <option value="2">Semester 2 (Genap)</option>
+          </select>
+          <div class="error-msg" id="err-semester">Semester wajib dipilih</div>
+        </div>
+        <div>
+          <label class="form-label">Alokasi Waktu <span style="color:#dc2626">*</span></label>
+          <input type="text" id="alokasi-waktu" class="form-input" placeholder="cth. 3 × 40 menit (2 pertemuan)">
+          <div class="error-msg" id="err-waktu">Alokasi waktu wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">Target Peserta Didik</label>
+          <select id="target-pd" class="form-input">
+            <option value="Reguler">Reguler</option>
+            <option value="Kesulitan Belajar">Peserta Didik dengan Kesulitan Belajar</option>
+            <option value="Pencapaian Tinggi">Peserta Didik dengan Pencapaian Tinggi</option>
+            <option value="Campuran">Campuran (Diferensiasi Penuh)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- C. Capaian & Tujuan -->
+    <div class="section-card">
+      <div class="section-title">C. Capaian & Tujuan Pembelajaran</div>
+      <div style="display:grid; gap:16px;">
+        <div>
+          <label class="form-label">Capaian Pembelajaran (CP) <span style="color:#dc2626">*</span></label>
+          <textarea id="cp" class="form-input" rows="4" placeholder="Tuliskan Capaian Pembelajaran sesuai dokumen CP Kemendikbud..."></textarea>
+          <div class="error-msg" id="err-cp">Capaian Pembelajaran wajib diisi</div>
+        </div>
+        <div>
+          <label class="form-label">Tujuan Pembelajaran <span style="color:#dc2626">*</span></label>
+          <textarea id="tujuan" class="form-input" rows="4" placeholder="Tuliskan tujuan pembelajaran yang spesifik, terukur, dan relevan dengan CP..."></textarea>
+          <div class="error-msg" id="err-tujuan">Tujuan Pembelajaran wajib diisi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D. Dimensi Profil Lulusan -->
+    <div class="section-card">
+      <div class="section-title">D. Dimensi Profil Lulusan</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;" id="profil-container">
+        <label class="checkbox-item"><input type="checkbox" value="Keimanan dan Ketakwaan terhadap Tuhan Yang Maha Esa"><span>Keimanan & Ketakwaan</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Kewargaan"><span>Kewargaan</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Penalaran Kritis"><span>Penalaran Kritis</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Kreativitas"><span>Kreativitas</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Kolaborasi"><span>Kolaborasi</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Kemandirian"><span>Kemandirian</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Kesehatan"><span>Kesehatan</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Komunikasi"><span>Komunikasi</span></label>
+      </div>
+    </div>
+
+    <!-- E. Model & Metode -->
+    <div class="section-card">
+      <div class="section-title">E. Model & Metode Pembelajaran</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div>
+          <label class="form-label">Model Pembelajaran <span style="color:#dc2626">*</span></label>
+          <select id="model" class="form-input">
+            <option value="">— Pilih Model —</option>
+            <option>Project-Based Learning (PjBL)</option>
+            <option>Problem-Based Learning (PBL)</option>
+            <option>Inquiry Learning</option>
+            <option>Pembelajaran Kooperatif</option>
+            <option>Blended Learning</option>
+            <option>Flipped Learning</option>
+            <option>Contextual Teaching & Learning (CTL)</option>
+            <option>Game-Based Learning (GBL)</option>
+            <option>Model 5E (Engage, Explore, Explain, Elaborate, Evaluate)</option>
+            <option>Discovery Learning</option>
+          </select>
+          <div class="error-msg" id="err-model">Model pembelajaran wajib dipilih</div>
+        </div>
+        <div>
+          <label class="form-label">Metode Pembelajaran (pilih beberapa)</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;" id="metode-container">
+            <label class="checkbox-item"><input type="checkbox" value="Ceramah Interaktif"><span>Ceramah Interaktif</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Diskusi Kelompok"><span>Diskusi Kelompok</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Tanya Jawab"><span>Tanya Jawab</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Eksperimen"><span>Eksperimen</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Demonstrasi"><span>Demonstrasi</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Discovery"><span>Discovery</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Studi Kasus"><span>Studi Kasus</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Role Play"><span>Role Play</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Mind Mapping"><span>Mind Mapping</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Presentasi"><span>Presentasi</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F. Sarana & Prasarana -->
+    <div class="section-card">
+      <div class="section-title">F. Sarana & Prasarana</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:10px;" id="sarana-container">
+        <label class="checkbox-item"><input type="checkbox" value="LCD Proyektor"><span>LCD Proyektor</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Laptop/Komputer"><span>Laptop/Komputer</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Chromebook"><span>Chromebook</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Gawai/Smartphone"><span>Gawai/Smartphone</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Koneksi Internet"><span>Koneksi Internet</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Google Workspace"><span>Google Workspace</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="LKPD Cetak"><span>LKPD Cetak</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Whiteboard/Papan Tulis"><span>Whiteboard</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Buku Teks"><span>Buku Teks</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Modul Digital"><span>Modul Digital</span></label>
+        <label class="checkbox-item"><input type="checkbox" value="Laboratorium"><span>Laboratorium</span></label>
+        <label class="checkbox-item" id="lainnya-label" style="grid-column:1/-1; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+          <input type="checkbox" id="sarana-lainnya-check" value="Lainnya" onchange="toggleLainnya(this)">
+          <span>Lainnya</span>
+          <input type="text" id="sarana-lainnya-input" class="form-input" placeholder="Tuliskan sarana lainnya..." style="display:none; margin-top:6px; width:100%; font-size:13px;" onclick="event.stopPropagation()">
+        </label>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <div style="text-align:center; padding:20px 0 10px;">
+      <button type="submit" class="btn-primary" style="font-size:16px; padding:15px 40px;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Buat RPM Sekarang
+      </button>
+      <div style="color:#6b7280; font-size:12px; margin-top:10px;">AI akan menghasilkan dokumen RPM lengkap dan profesional dalam beberapa menit</div>
+    </div>
+
+  </form>
+</div>
+
+<!-- RPM Output Section -->
+<div id="rpm-output" style="display:none;">
+  <div style="background:var(--primary); padding:16px 24px; text-align:center; position:sticky; top:0; z-index:100;" class="no-print">
+    <div style="max-width:860px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div style="color:white; font-weight:700; font-size:15px;">✅ RPM Berhasil Dibuat!</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-accent" onclick="copyAndOpenGDocs()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Salin & Buka di Google Dokumen
+        </button>
+        <button class="btn-secondary" onclick="downloadAsWord()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Unduh sebagai Word (.doc)
+        </button>
+        <button class="btn-secondary" onclick="window.print()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Cetak
+        </button>
+        <button class="btn-secondary" onclick="location.reload()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          Buat Baru
+        </button>
+      </div>
+    </div>
+  </div>
+  <div style="padding:30px 20px;" id="rpm-wrapper">
+    <div class="rpm-doc" id="rpm-content">
+      <!-- Generated here -->
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://api.anthropic.com/v1/messages";
+
+function getChecked(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`))
+    .map(cb => cb.value);
+}
+
+function toggleLainnya(cb) {
+  const input = document.getElementById('sarana-lainnya-input');
+  input.style.display = cb.checked ? 'block' : 'none';
+  if (!cb.checked) input.value = '';
+}
+
+function getSarana() {
+  const checked = Array.from(document.querySelectorAll('#sarana-container input[type=checkbox]:checked'))
+    .map(cb => cb.value).filter(v => v !== 'Lainnya');
+  const lainnyaCheck = document.getElementById('sarana-lainnya-check');
+  if (lainnyaCheck.checked) {
+    const customVal = document.getElementById('sarana-lainnya-input').value.trim();
+    if (customVal) checked.push(customVal);
+  }
+  return checked;
+}
+
+function validate() {
+  const fields = [
+    ['nama-guru','err-nama-guru'],
+    ['nama-sekolah','err-nama-sekolah'],
+    ['tahun-pelajaran','err-tahun'],
+    ['mapel','err-mapel'],
+    ['fase','err-fase'],
+    ['kelas','err-kelas'],
+    ['semester','err-semester'],
+    ['alokasi-waktu','err-waktu'],
+    ['cp','err-cp'],
+    ['tujuan','err-tujuan'],
+    ['model','err-model'],
+  ];
+  let ok = true;
+  fields.forEach(([id, errId]) => {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el.value.trim()) {
+      err.classList.add('show');
+      el.closest('div').classList.add('field-error');
+      ok = false;
+    } else {
+      err.classList.remove('show');
+      el.closest('div').classList.remove('field-error');
+    }
+  });
+  return ok;
+}
+
+async function callClaude(prompt, systemPrompt) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.map(c => c.text || '').join('') || '';
+}
+
+function setStep(n) {
+  for(let i=1; i<=5; i++) {
+    const el = document.getElementById('step'+i);
+    if(i < n) { el.className = 'progress-step done'; }
+    else if(i === n) { el.className = 'progress-step active'; }
+    else { el.className = 'progress-step'; }
+  }
+}
+
+async function generateRPM(data) {
+  const sys = `Anda adalah ahli kurikulum Merdeka Indonesia, instructional designer profesional, dan penulis dokumen pendidikan. Tugas Anda menghasilkan konten RPM (Rencana Pembelajaran Mendalam) yang sangat komprehensif, naratif, dan profesional dalam bahasa Indonesia baku (EYD). Istilah asing ditulis miring. Selalu hasilkan konten yang panjang, holistik, dan berkualitas tinggi.`;
+
+  setStep(1);
+  document.getElementById('loading-text').textContent = 'Menganalisis Capaian Pembelajaran...';
+  const identifikasi = await callClaude(`
+Buatkan bagian IDENTIFIKASI RPM untuk:
+Mata Pelajaran: ${data.mapel}
+Fase: ${data.fase}, Kelas: ${data.kelas}
+CP: ${data.cp}
+Target PD: ${data.targetPD}
+
+Hasilkan dalam format JSON dengan struktur:
+{
+  "pengetahuanAwal": "narasi 3-4 kalimat tentang pengetahuan prasyarat",
+  "minatSiswa": "narasi 2-3 kalimat tentang minat dan karakteristik siswa",
+  "latarBelakang": "narasi 2-3 kalimat tentang latar belakang sosial-budaya",
+  "kebutuhanBelajar": "narasi 2-3 kalimat kebutuhan belajar utama",
+  "faktual": "3-5 fakta kunci materi",
+  "konseptual": "3-5 konsep inti yang harus dipahami",
+  "prosedural": "3-5 prosedur/langkah yang harus dikuasai",
+  "metakognitif": "2-3 strategi berpikir tentang berpikir",
+  "lintasDisiplin": "2-3 kaitan dengan bidang ilmu lain",
+  "topikPembelajaran": "judul topik yang menarik dan kontekstual"
+}
+Jawab HANYA JSON, tanpa teks lain.`, sys);
+
+  let id = {};
+  try { id = JSON.parse(identifikasi.replace(/```json|```/g,'')); } catch(e) { id = {}; }
+
+  setStep(2);
+  document.getElementById('loading-text').textContent = 'Merancang Kegiatan Pembelajaran...';
+  const kegiatan = await callClaude(`
+Buatkan LANGKAH PEMBELAJARAN lengkap dan naratif untuk RPM:
+Mapel: ${data.mapel}, Kelas: ${data.kelas}, Fase: ${data.fase}
+Model: ${data.model}
+Metode: ${data.metode.join(', ')}
+CP: ${data.cp}
+Tujuan: ${data.tujuan}
+Alokasi: ${data.alokasiWaktu}
+Target PD: ${data.targetPD}
+Sarana: ${data.sarana.join(', ')}
+
+Hasilkan JSON:
+{
+  "pendahuluan": {
+    "durasi": "...",
+    "narasi": "narasi kontekstual pembukaan 3-4 kalimat",
+    "langkah": ["salam & doa", "presensi & cek kondisi", "murojaah", "lagu nasional", "kesepakatan kelas", "KSE (kompetensi sosial-emosional)", "ice breaking", "apersepsi", "tujuan pembelajaran", "pertanyaan pemantik HOTS"]
+  },
+  "inti": {
+    "durasi": "...",
+    "memahami": {"narasi": "...", "langkah": ["...","...","..."]},
+    "mengaplikasi": {"narasi": "...", "langkah": ["...","...","..."]},
+    "merefleksi": {"narasi": "...", "langkah": ["...","..."]}
+  },
+  "penutup": {
+    "durasi": "...",
+    "narasi": "...",
+    "langkah": ["refleksi mandiri", "umpan balik", "kesimpulan bersama", "penugasan", "doa penutup"]
+  },
+  "petaPengalaman": {
+    "mengalami": "...", "bertanya": "...", "mengeksplorasi": "...",
+    "merefleksi": "...", "mengaplikasikan": "..."
+  }
+}
+HANYA JSON.`, sys);
+
+  let keg = {};
+  try { keg = JSON.parse(kegiatan.replace(/```json|```/g,'')); } catch(e) { keg = {}; }
+
+  setStep(3);
+  document.getElementById('loading-text').textContent = 'Menyusun Instrumen Asesmen...';
+  const asesmen = await callClaude(`
+Buatkan ASESMEN PEMBELAJARAN lengkap untuk:
+Mapel: ${data.mapel}, Kelas: ${data.kelas}
+CP: ${data.cp}
+Tujuan: ${data.tujuan}
+Model: ${data.model}
+
+Hasilkan JSON:
+{
+  "diagnostik": [
+    {"no":1,"soal":"...","jawaban":"..."},
+    {"no":2,"soal":"...","jawaban":"..."},
+    {"no":3,"soal":"...","jawaban":"..."}
+  ],
+  "formatif": {
+    "observasi": "deskripsi teknik observasi dan indikator",
+    "rubrik": [
+      {"aspek":"Pemahaman Konsep","sangat_baik":"...","baik":"...","cukup":"...","perlu_bimbingan":"..."},
+      {"aspek":"Keterampilan Proses","sangat_baik":"...","baik":"...","cukup":"...","perlu_bimbingan":"..."},
+      {"aspek":"Sikap & Kolaborasi","sangat_baik":"...","baik":"...","cukup":"...","perlu_bimbingan":"..."}
+    ]
+  },
+  "sumatif": {
+    "indikator": ["...","...","..."],
+    "pilganSoal": [
+      {"no":1,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":2,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":3,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":4,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":5,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":6,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":7,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":8,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":9,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."},
+      {"no":10,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."},"kunci":"..."}
+    ],
+    "esaiSoal": [
+      {"no":1,"soal":"...","pedoman":"...","bobot":20},
+      {"no":2,"soal":"...","pedoman":"...","bobot":20},
+      {"no":3,"soal":"...","pedoman":"...","bobot":20},
+      {"no":4,"soal":"...","pedoman":"...","bobot":20},
+      {"no":5,"soal":"...","pedoman":"...","bobot":20}
+    ]
+  },
+  "remedial": "deskripsi program remedial 3-4 kalimat",
+  "pengayaan": "deskripsi program pengayaan 3-4 kalimat"
+}
+HANYA JSON.`, sys);
+
+  let as = {};
+  try { as = JSON.parse(asesmen.replace(/```json|```/g,'')); } catch(e) { as = {}; }
+
+  setStep(4);
+  document.getElementById('loading-text').textContent = 'Menyusun LKPD & Lampiran...';
+  const lampiran = await callClaude(`
+Buatkan LAMPIRAN RPM untuk:
+Mapel: ${data.mapel}, Kelas: ${data.kelas}
+CP: ${data.cp}
+Topik: ${id.topikPembelajaran || data.mapel}
+
+Hasilkan JSON:
+{
+  "materiRingkas": "materi inti 8-10 paragraf naratif mencakup semua konsep penting",
+  "lkpd": {
+    "judul": "...",
+    "tujuan": ["...","...","..."],
+    "petunjuk": ["...","...","..."],
+    "soalPG": [
+      {"no":1,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."}},
+      {"no":2,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."}},
+      {"no":3,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."}},
+      {"no":4,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."}},
+      {"no":5,"soal":"...","opsi":{"A":"...","B":"...","C":"...","D":"..."}}
+    ],
+    "soalUraian": [
+      {"no":1,"soal":"..."},
+      {"no":2,"soal":"..."},
+      {"no":3,"soal":"..."}
+    ]
+  },
+  "soalHOTS": [
+    {"no":1,"soal":"...","levelBloom":"Analisis/Evaluasi/Kreasi"},
+    {"no":2,"soal":"...","levelBloom":"..."},
+    {"no":3,"soal":"...","levelBloom":"..."},
+    {"no":4,"soal":"...","levelBloom":"..."},
+    {"no":5,"soal":"...","levelBloom":"..."}
+  ],
+  "daftarPustaka": [
+    "Kemendikbudristek. (2022). Capaian Pembelajaran ...",
+    "...",
+    "...",
+    "...",
+    "..."
+  ],
+  "diferensiasi": {
+    "konten": "strategi diferensiasi konten 3 kalimat",
+    "proses": "strategi diferensiasi proses 3 kalimat",
+    "produk": "strategi diferensiasi produk 3 kalimat"
+  }
+}
+HANYA JSON.`, sys);
+
+  let lamp = {};
+  try { lamp = JSON.parse(lampiran.replace(/```json|```/g,'')); } catch(e) { lamp = {}; }
+
+  setStep(5);
+  document.getElementById('loading-text').textContent = 'Memfinalisasi Dokumen RPM...';
+
+  return { id, keg, as, lamp };
+}
+
+function safe(v, fallback='—') { return v || fallback; }
+function safeArr(v) { return Array.isArray(v) ? v : []; }
+
+function renderRPM(data, gen) {
+  const { id, keg, as, lamp } = gen;
+  const profil = data.profilLulusan;
+  const metode = data.metode;
+  const sarana = data.sarana;
+
+  const profilDesc = {
+    'Keimanan dan Ketakwaan kepada Tuhan Yang Maha Esa': 'Peserta didik senantiasa beriman dan bertakwa kepada Tuhan Yang Maha Esa, menjalankan ibadah, dan berakhlak mulia dalam setiap aspek kehidupan.',
+    'Kebinekaan Global': 'Peserta didik menghargai keberagaman budaya, bangsa, dan agama sebagai kekayaan Indonesia dan dunia.',
+    'Kewargaan': 'Peserta didik memiliki rasa cinta tanah air, bangga terhadap identitas nasional, dan berkontribusi aktif bagi masyarakat.',
+    'Penalaran Kritis': 'Peserta didik mampu berpikir kritis, logis, analitis, dan sistematis dalam menghadapi berbagai permasalahan.',
+    'Kreativitas': 'Peserta didik mampu menghasilkan karya orisinal, berpikir divergen, dan menemukan solusi inovatif.',
+    'Kolaborasi': 'Peserta didik mampu bekerja sama secara efektif dalam tim yang beragam, saling menghargai, dan berkontribusi optimal.',
+    'Kemandirian': 'Peserta didik memiliki inisiatif belajar mandiri, mampu mengelola diri, dan bertanggung jawab atas proses belajarnya.',
+    'Kesehatan Jasmani dan Rohani': 'Peserta didik menyadari pentingnya kesehatan fisik dan mental serta mempraktikkan gaya hidup sehat.',
+    'Komunikasi': 'Peserta didik mampu mengomunikasikan ide, gagasan, dan perasaan secara efektif dalam berbagai konteks.',
+  };
+
+  const tgl = new Date().toLocaleDateString('id-ID',{year:'numeric',month:'long',day:'numeric'});
+
+  // Helper
+  const ulLangkah = (arr) => safeArr(arr).map(l=>`<tr><td style="padding:5px 10px; border:1px solid #ddd; font-size:12px;">• ${l}</td></tr>`).join('');
+  const trInfo = (label, value) => `<tr><td style="width:35%; padding:6px 10px; font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px;">${label}</td><td style="padding:6px 10px; border:1px solid #ccc; font-size:12px;">${value}</td></tr>`;
+
+  let html = `
+<div class="rpm-header">
+  <div style="font-size:11px; color:#888; margin-bottom:4px;">DOKUMEN RESMI SEKOLAH — DINAS PENDIDIKAN</div>
+  <h1>RENCANA PEMBELAJARAN MENDALAM (RPM)</h1>
+  <h2>Kurikulum Merdeka — Tahun Pelajaran ${data.tahunPelajaran}</h2>
+  <div style="font-size:11px; color:#888; margin-top:4px;">Diterbitkan: ${tgl}</div>
+</div>
+
+<div class="rpm-section-heading">A. INFORMASI UMUM</div>
+<table class="rpm-table">
+  ${trInfo('Satuan Pendidikan', data.namaSekolah)}
+  ${trInfo('Nama Guru / Penyusun', data.namaGuru)}
+  ${trInfo('Mata Pelajaran', data.mapel)}
+  ${trInfo('Fase / Kelas', `${data.fase} / Kelas ${data.kelas}`)}
+  ${trInfo('Semester', data.semester === '1' ? 'Semester 1 (Ganjil)' : 'Semester 2 (Genap)')}
+  ${trInfo('Alokasi Waktu', data.alokasiWaktu)}
+  ${trInfo('Tahun Pelajaran', data.tahunPelajaran)}
+  ${trInfo('Target Peserta Didik', data.targetPD)}
+  ${trInfo('Model Pembelajaran', data.model)}
+  ${trInfo('Metode Pembelajaran', metode.join(', ') || '—')}
+  ${trInfo('Sarana & Prasarana', sarana.join(', ') || '—')}
+</table>
+
+<div class="rpm-section-heading">B. IDENTIFIKASI PEMBELAJARAN</div>
+
+<div class="rpm-sub-heading">B.1 Peserta Didik</div>
+<table class="rpm-table">
+  ${trInfo('Pengetahuan Awal', safe(id.pengetahuanAwal))}
+  ${trInfo('Minat & Karakteristik', safe(id.minatSiswa))}
+  ${trInfo('Latar Belakang Sosial-Budaya', safe(id.latarBelakang))}
+  ${trInfo('Kebutuhan Belajar Utama', safe(id.kebutuhanBelajar))}
+</table>
+
+<div class="rpm-sub-heading">B.2 Materi Pelajaran</div>
+<table class="rpm-table">
+  <tr><th>Jenis Pengetahuan</th><th>Uraian Konten</th></tr>
+  <tr><td style="font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px; padding:7px 10px;">Faktual</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(id.faktual)}</td></tr>
+  <tr><td style="font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px; padding:7px 10px;">Konseptual</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(id.konseptual)}</td></tr>
+  <tr><td style="font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px; padding:7px 10px;">Prosedural</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(id.prosedural)}</td></tr>
+  <tr><td style="font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px; padding:7px 10px;">Metakognitif</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(id.metakognitif)}</td></tr>
+</table>
+
+<div class="rpm-sub-heading">B.3 Dimensi Profil Lulusan</div>
+<table class="rpm-table">
+  <tr><th>Dimensi</th><th>Deskripsi & Relevansi</th></tr>
+  ${profil.map(p=>`<tr><td style="font-weight:600; background:#f8f9fa; border:1px solid #ccc; font-size:12px; padding:7px 10px; white-space:nowrap;">${p}</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${profilDesc[p] || p}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-section-heading">C. DESAIN PEMBELAJARAN</div>
+<table class="rpm-table">
+  ${trInfo('Capaian Pembelajaran', data.cp)}
+  ${trInfo('Lintas Disiplin Ilmu', safe(id.lintasDisiplin))}
+  ${trInfo('Tujuan Pembelajaran', data.tujuan)}
+  ${trInfo('Topik Pembelajaran', safe(id.topikPembelajaran))}
+  ${trInfo('Praktik Pedagogis', data.model + (metode.length ? ` dengan metode: ${metode.join(', ')}` : ''))}
+  ${trInfo('Kemitraan Pembelajaran', 'Orang tua/wali sebagai mitra pendampingan belajar di rumah; narasumber dari lingkungan sekitar; komunitas belajar guru; perpustakaan daerah.')}
+  ${trInfo('Lingkungan Belajar (Fisik)', 'Ruang kelas yang tertata kolaboratif, akses sudut baca, area diskusi kelompok, dan papan display karya siswa.')}
+  ${trInfo('Lingkungan Belajar (Virtual)', 'Platform digital: Google Classroom, YouTube Edu, Quizizz, Padlet, Canva for Education, Mentimeter.')}
+  ${trInfo('Lingkungan Belajar (Budaya)', 'Budaya kelas yang inklusif, saling menghargai, berani bertanya, dan terbuka terhadap perbedaan pendapat.')}
+</table>
+
+<div class="rpm-section-heading">D. PETA PENGALAMAN BELAJAR MURID</div>
+<table class="rpm-table">
+  <tr><th>Dimensi Pengalaman</th><th>Deskripsi Aktivitas</th></tr>
+  <tr><td style="font-weight:600; background:#e8f4ea; border:1px solid #ccc; font-size:12px; padding:7px 10px;">🌱 Mengalami</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(keg.petaPengalaman?.mengalami)}</td></tr>
+  <tr><td style="font-weight:600; background:#e8f4ea; border:1px solid #ccc; font-size:12px; padding:7px 10px;">❓ Bertanya</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(keg.petaPengalaman?.bertanya)}</td></tr>
+  <tr><td style="font-weight:600; background:#e8f4ea; border:1px solid #ccc; font-size:12px; padding:7px 10px;">🔍 Mengeksplorasi</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(keg.petaPengalaman?.mengeksplorasi)}</td></tr>
+  <tr><td style="font-weight:600; background:#e8f4ea; border:1px solid #ccc; font-size:12px; padding:7px 10px;">🪞 Merefleksi</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(keg.petaPengalaman?.merefleksi)}</td></tr>
+  <tr><td style="font-weight:600; background:#e8f4ea; border:1px solid #ccc; font-size:12px; padding:7px 10px;">💡 Mengaplikasikan</td><td style="border:1px solid #ccc; font-size:12px; padding:7px 10px;">${safe(keg.petaPengalaman?.mengaplikasikan)}</td></tr>
+</table>
+
+<div class="rpm-section-heading">E. LANGKAH PEMBELAJARAN</div>
+
+<div class="rpm-sub-heading">E.1 Kegiatan Pendahuluan (${safe(keg.pendahuluan?.durasi, '±15 menit')})</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:10px; text-align:justify;">${safe(keg.pendahuluan?.narasi)}</p>
+<table class="rpm-table" style="margin-bottom:16px;">
+  <tr><th>#</th><th>Aktivitas Guru</th><th>Aktivitas Peserta Didik</th><th>Keterangan</th></tr>
+  ${safeArr(keg.pendahuluan?.langkah).map((l,i)=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; text-align:center; font-size:12px; width:30px;">${i+1}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:12px;" colspan="2">${l}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:11px; color:#555;">${i===0?'Religius':i===3?'Nasionalisme':i===4?'Disiplin':i===5?'KSE':i===6?'Motivasi':i===7?'Apersepsi':i===8?'Literasi':i===9?'HOTS':''}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">E.2 Kegiatan Inti (${safe(keg.inti?.durasi, '±90 menit')})</div>
+
+<div style="font-weight:700; color:var(--primary); font-size:13px; margin:10px 0 6px; padding:4px 10px; background:#dbeafe; border-left:3px solid #1a3a5c;">📖 Fase MEMAHAMI</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:8px; text-align:justify;">${safe(keg.inti?.memahami?.narasi)}</p>
+<table class="rpm-table">
+  ${safeArr(keg.inti?.memahami?.langkah).map((l,i)=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; text-align:center; font-size:12px; width:30px; background:#f8f9fa;">${i+1}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:12px;">${l}</td></tr>`).join('')}
+</table>
+
+<div style="font-weight:700; color:var(--primary); font-size:13px; margin:10px 0 6px; padding:4px 10px; background:#dcfce7; border-left:3px solid #166534;">⚙️ Fase MENGAPLIKASI</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:8px; text-align:justify;">${safe(keg.inti?.mengaplikasi?.narasi)}</p>
+<table class="rpm-table">
+  ${safeArr(keg.inti?.mengaplikasi?.langkah).map((l,i)=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; text-align:center; font-size:12px; width:30px; background:#f8f9fa;">${i+1}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:12px;">${l}</td></tr>`).join('')}
+</table>
+
+<div style="font-weight:700; color:var(--primary); font-size:13px; margin:10px 0 6px; padding:4px 10px; background:#fef9c3; border-left:3px solid #854d0e;">🪞 Fase MEREFLEKSI</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:8px; text-align:justify;">${safe(keg.inti?.merefleksi?.narasi)}</p>
+<table class="rpm-table">
+  ${safeArr(keg.inti?.merefleksi?.langkah).map((l,i)=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; text-align:center; font-size:12px; width:30px; background:#f8f9fa;">${i+1}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:12px;">${l}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">E.3 Kegiatan Penutup (${safe(keg.penutup?.durasi, '±15 menit')})</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:8px; text-align:justify;">${safe(keg.penutup?.narasi)}</p>
+<table class="rpm-table">
+  ${safeArr(keg.penutup?.langkah).map((l,i)=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; text-align:center; font-size:12px; width:30px; background:#f8f9fa;">${i+1}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:12px;">${l}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-section-heading">F. ASESMEN PEMBELAJARAN</div>
+
+<div class="rpm-sub-heading">F.1 Asesmen Awal (Diagnostik)</div>
+<table class="rpm-table">
+  <tr><th>#</th><th>Pertanyaan Diagnostik</th><th>Jawaban yang Diharapkan</th></tr>
+  ${safeArr(as.diagnostik).map(s=>`<tr><td style="border:1px solid #ccc; padding:7px 10px; text-align:center; font-size:12px; width:30px;">${s.no}</td><td style="border:1px solid #ccc; padding:7px 10px; font-size:12px;">${s.soal}</td><td style="border:1px solid #ccc; padding:7px 10px; font-size:12px; color:#555;">${s.jawaban}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">F.2 Asesmen Formatif</div>
+<p style="font-size:12px; line-height:1.8; margin-bottom:10px;">${safe(as.formatif?.observasi)}</p>
+<table class="rpm-table">
+  <tr><th>Aspek Penilaian</th><th>Sangat Baik (4)</th><th>Baik (3)</th><th>Cukup (2)</th><th>Perlu Bimbingan (1)</th></tr>
+  ${safeArr(as.formatif?.rubrik).map(r=>`<tr><td style="border:1px solid #ccc; padding:6px 8px; font-weight:600; background:#f8f9fa; font-size:11px;">${r.aspek}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:11px;">${r.sangat_baik}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:11px;">${r.baik}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:11px;">${r.cukup}</td><td style="border:1px solid #ccc; padding:6px 8px; font-size:11px;">${r.perlu_bimbingan}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">F.3 Asesmen Sumatif — Pilihan Ganda</div>
+<table class="rpm-table">
+  <tr><th style="width:30px;">#</th><th>Soal</th><th>Opsi Jawaban</th><th style="width:50px;">Kunci</th></tr>
+  ${safeArr(as.sumatif?.pilganSoal).map(s=>`<tr><td style="border:1px solid #ccc; padding:7px 8px; text-align:center; font-size:12px; font-weight:700;">${s.no}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:12px;">${s.soal}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:11px;">A. ${s.opsi?.A}<br>B. ${s.opsi?.B}<br>C. ${s.opsi?.C}<br>D. ${s.opsi?.D}</td><td style="border:1px solid #ccc; padding:7px 8px; text-align:center; font-weight:700; font-size:13px; color:#166534;">${s.kunci}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">F.4 Asesmen Sumatif — Soal Esai</div>
+<table class="rpm-table">
+  <tr><th style="width:30px;">#</th><th>Soal</th><th>Pedoman Penskoran</th><th style="width:50px;">Bobot</th></tr>
+  ${safeArr(as.sumatif?.esaiSoal).map(s=>`<tr><td style="border:1px solid #ccc; padding:7px 8px; text-align:center; font-size:12px; font-weight:700;">${s.no}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:12px;">${s.soal}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:11px; color:#555;">${s.pedoman}</td><td style="border:1px solid #ccc; padding:7px 8px; text-align:center; font-size:12px; font-weight:700;">${s.bobot}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">F.5 Program Remedial & Pengayaan</div>
+<table class="rpm-table">
+  ${trInfo('Program Remedial', safe(as.remedial))}
+  ${trInfo('Program Pengayaan', safe(as.pengayaan))}
+</table>
+
+<div class="rpm-section-heading">G. DIFERENSIASI PEMBELAJARAN</div>
+<table class="rpm-table">
+  ${trInfo('Diferensiasi Konten', safe(lamp.diferensiasi?.konten))}
+  ${trInfo('Diferensiasi Proses', safe(lamp.diferensiasi?.proses))}
+  ${trInfo('Diferensiasi Produk', safe(lamp.diferensiasi?.produk))}
+</table>
+
+<div class="rpm-section-heading">H. LAMPIRAN</div>
+
+<div class="rpm-sub-heading">Lampiran 1 — Materi Ringkas</div>
+<p style="font-size:12px; line-height:1.9; text-align:justify;">${safe(lamp.materiRingkas)}</p>
+
+<div class="rpm-sub-heading">Lampiran 2 — Lembar Kerja Peserta Didik (LKPD)</div>
+<div style="border:2px solid var(--primary); padding:16px; margin-bottom:12px; border-radius:6px;">
+  <div style="text-align:center; font-weight:800; font-size:14px; color:var(--primary); text-transform:uppercase; margin-bottom:8px;">LEMBAR KERJA PESERTA DIDIK</div>
+  <div style="text-align:center; font-size:13px; font-weight:600; margin-bottom:16px;">${safe(lamp.lkpd?.judul)}</div>
+  <table class="rpm-table">
+    ${trInfo('Nama Peserta Didik', '____________________________')}
+    ${trInfo('Kelas / Nomor Absen', '____________ / ____________')}
+    ${trInfo('Tanggal Pengerjaan', '____________________________')}
+  </table>
+  <div style="font-weight:700; font-size:12px; margin:12px 0 6px; color:var(--primary);">📌 Tujuan Pembelajaran:</div>
+  <ol style="font-size:12px; margin:0 0 10px 20px; line-height:1.8;">${safeArr(lamp.lkpd?.tujuan).map(t=>`<li>${t}</li>`).join('')}</ol>
+  <div style="font-weight:700; font-size:12px; margin:10px 0 6px; color:var(--primary);">📋 Petunjuk Pengerjaan:</div>
+  <ol style="font-size:12px; margin:0 0 10px 20px; line-height:1.8;">${safeArr(lamp.lkpd?.petunjuk).map(p=>`<li>${p}</li>`).join('')}</ol>
+  <div style="font-weight:700; font-size:12px; margin:10px 0 6px; color:var(--primary);">I. Pilihan Ganda</div>
+  ${safeArr(lamp.lkpd?.soalPG).map(s=>`
+  <div style="margin-bottom:12px; font-size:12px;">
+    <p style="margin:0 0 4px; font-weight:600;">${s.no}. ${s.soal}</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; padding-left:12px;">
+      <div>A. ${s.opsi?.A}</div><div>B. ${s.opsi?.B}</div>
+      <div>C. ${s.opsi?.C}</div><div>D. ${s.opsi?.D}</div>
+    </div>
+    <div style="margin-top:4px; padding-left:12px;">Jawaban: ______</div>
+  </div>`).join('')}
+  <div style="font-weight:700; font-size:12px; margin:14px 0 6px; color:var(--primary);">II. Soal Uraian</div>
+  ${safeArr(lamp.lkpd?.soalUraian).map(s=>`
+  <div style="margin-bottom:16px; font-size:12px;">
+    <p style="font-weight:600; margin:0 0 4px;">${s.no}. ${s.soal}</p>
+    <div style="border:1px solid #ccc; min-height:60px; padding:8px; border-radius:4px; color:#999; font-size:11px;">[Ruang jawaban peserta didik]</div>
+  </div>`).join('')}
+</div>
+
+<div class="rpm-sub-heading">Lampiran 3 — Soal HOTS Tambahan</div>
+<table class="rpm-table">
+  <tr><th>#</th><th>Soal HOTS</th><th>Level Bloom</th></tr>
+  ${safeArr(lamp.soalHOTS).map(s=>`<tr><td style="border:1px solid #ccc; padding:7px 8px; text-align:center; font-size:12px; font-weight:700;">${s.no}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:12px;">${s.soal}</td><td style="border:1px solid #ccc; padding:7px 8px; font-size:11px; text-align:center; background:#fef9c3; font-weight:600;">${s.levelBloom}</td></tr>`).join('')}
+</table>
+
+<div class="rpm-sub-heading">Lampiran 4 — Daftar Pustaka</div>
+<ol style="font-size:12px; line-height:2; margin-left:20px;">
+  ${safeArr(lamp.daftarPustaka).map(d=>`<li>${d}</li>`).join('')}
+</ol>
+
+<div class="rpm-footer">
+  <div class="rpm-footer-side">
+    <div style="font-size:12px; color:#555;">Mengetahui,</div>
+    <div style="font-size:12px; color:#555;">Kepala Sekolah</div>
+    <div style="height:50px;"></div>
+    <div class="name">${safe(data.namaKepsek, 'Kepala Sekolah')}</div>
+    <div style="font-size:11px; color:#555;">NIP. ${safe(data.nipKepsek, '...........................')}</div>
+  </div>
+  <div class="rpm-footer-side" style="text-align:center;">
+    <div style="font-size:12px; color:#555;">${data.namaSekolah},</div>
+    <div style="font-size:12px; color:#555;">${tgl}</div>
+    <div style="font-size:12px; color:#555; margin-top:4px;">Guru Mata Pelajaran</div>
+    <div style="height:50px;"></div>
+    <div class="name">${data.namaGuru}</div>
+    <div style="font-size:11px; color:#555;">NIP. ${safe(data.nipGuru, '...........................')}</div>
+  </div>
+</div>`;
+
+  return html;
+}
+
+document.getElementById('rpm-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validate()) {
+    document.querySelector('.field-error input, .field-error select, .field-error textarea')?.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  const data = {
+    namaGuru: document.getElementById('nama-guru').value.trim(),
+    nipGuru: document.getElementById('nip-guru').value.trim(),
+    namaSekolah: document.getElementById('nama-sekolah').value.trim(),
+    namaKepsek: document.getElementById('nama-kepsek').value.trim(),
+    nipKepsek: document.getElementById('nip-kepsek').value.trim(),
+    tahunPelajaran: document.getElementById('tahun-pelajaran').value.trim(),
+    mapel: document.getElementById('mapel').value.trim(),
+    fase: document.getElementById('fase').value,
+    kelas: document.getElementById('kelas').value.trim(),
+    semester: document.getElementById('semester').value,
+    alokasiWaktu: document.getElementById('alokasi-waktu').value.trim(),
+    targetPD: document.getElementById('target-pd').value,
+    cp: document.getElementById('cp').value.trim(),
+    tujuan: document.getElementById('tujuan').value.trim(),
+    model: document.getElementById('model').value,
+    profilLulusan: getChecked('profil-container'),
+    metode: getChecked('metode-container'),
+    sarana: getSarana(),
+  };
+
+  if (data.profilLulusan.length === 0) data.profilLulusan = ['Penalaran Kritis', 'Kolaborasi', 'Kemandirian'];
+
+  document.getElementById('loading-overlay').classList.add('show');
+
+  try {
+    const gen = await generateRPM(data);
+    const html = renderRPM(data, gen);
+    document.getElementById('rpm-content').innerHTML = html;
+    document.getElementById('loading-overlay').classList.remove('show');
+    document.getElementById('rpm-output').style.display = 'block';
+    document.querySelector('.no-print')?.scrollIntoView({behavior:'smooth'});
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    document.getElementById('rpm-output').scrollIntoView({behavior:'smooth'});
+  } catch(err) {
+    document.getElementById('loading-overlay').classList.remove('show');
+    alert('Terjadi kesalahan: ' + err.message + '\nPastikan koneksi internet aktif dan coba lagi.');
+  }
+});
+
+function copyAndOpenGDocs() {
+  const content = document.getElementById('rpm-content').innerText;
+  navigator.clipboard.writeText(content).then(() => {
+    window.open('https://docs.google.com/document/create', '_blank');
+    setTimeout(() => alert('✅ Teks RPM telah disalin ke clipboard!\n\nGunakan Ctrl+V (atau Cmd+V di Mac) di Google Docs untuk menempelkannya.\nUntuk format tabel yang lebih baik, gunakan fitur "Unduh sebagai Word" kemudian impor ke Google Docs.'), 500);
+  }).catch(() => {
+    alert('Gagal menyalin. Silakan gunakan tombol "Unduh sebagai Word".');
+  });
+}
+
+function downloadAsWord() {
+  const content = document.getElementById('rpm-content').innerHTML;
+  const mapel = document.getElementById('mapel').value.replace(/\s+/g,'_');
+  const kelas = document.getElementById('kelas').value;
+
+  const wordContent = `
+<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset='utf-8'>
+<title>RPM - ${mapel}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+<style>
+  body { font-family: 'Times New Roman', serif; font-size: 12pt; margin: 2cm; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid #999; padding: 6pt; font-size: 10pt; }
+  th { background: #1a3a5c; color: white; }
+  .rpm-section-heading { background: #1a3a5c; color: white; padding: 5pt 10pt; font-weight: bold; font-size: 10pt; }
+  .rpm-sub-heading { background: #e8f0fa; color: #1a3a5c; padding: 4pt 10pt; font-weight: bold; }
+</style>
+</head>
+<body>${content}</body>
+</html>`;
+
+  const blob = new Blob(['\ufeff' + wordContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `RPM_${mapel}_Kelas${kelas}_${new Date().toISOString().slice(0,10)}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
